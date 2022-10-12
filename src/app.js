@@ -1,41 +1,35 @@
-const HttpClient = require('./httpClient')
-const Jira = require('./jira')
+const Jira = require("./jira");
+const Github = require("./github");
 
 class App {
-
-  constructor(event, issuetypes, transitions) {
-    this.event = event
+  
+  constructor(issuetypes, transitions) {
     this.issuetypes = issuetypes
     this.transitions = transitions
-    this.httpClient = new HttpClient()
-    this.jira = new Jira(this.httpClient)
+    this.jira = new Jira();
+    this.github = new Github();
+    this.publishComment = false
   }
 
   async init() {
-    this.validateInput()
-
-    const commitMessages = this.getCommitMessages()
+    const commitMessages = await this.github.getPullRequestCommitMessages();
     const issueKeys = this.findIssueKeys(commitMessages)
     const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
     await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
-  }
 
-  validateInput() {
-    if (!process.env.JIRA_BASE_URL) throw new Error('Please specify JIRA_BASE_URL env')
-    if (!process.env.JIRA_API_TOKEN) throw new Error('Please specify JIRA_API_TOKEN env')
-    if (!process.env.JIRA_USER_EMAIL) throw new Error('Please specify JIRA_USER_EMAIL env')
-  }
-
-  getCommitMessages() {
-    const commitMessages = this.event.commits.map(commit => commit.message).join(' ')
-    console.log(`Commit messages: ${commitMessages}`)
-    return commitMessages
+    const jiraIssueList = await this.getIssueListFromKeys(issueKeys);
+    await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
   }
 
   findIssueKeys(commitMessages) {
+    if (!commitMessages) {
+      console.dir(commitMessages)
+      throw new Error(`commitMessages is empty`)
+    }
+
     const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g
     // Get issue keys and remove duplicate keys
-    const issueKeys = commitMessages.match(issueIdRegEx).filter((elem, index, self) => index === self.indexOf(elem))
+    const issueKeys = commitMessages.flatMap(message => message.match(issueIdRegEx) ? message.match(issueIdRegEx) : [])
     if (!issueKeys) {
       throw new Error(`Commit messages doesn't contain any issue keys`)
     }
@@ -68,6 +62,7 @@ class App {
             id: designedTransition.id,
             name: designedTransition.name
           })
+          this.publishComment = true
         }
       } else { // current status === transition status
         console.log(`Issue ${issue} is already in ${issueStatus} status`)
@@ -83,6 +78,26 @@ class App {
     }
   }
 
+  async getIssueListFromKeys(issueKeys) {
+    const issuesData = await Promise.all(issueKeys.map((issueKey) => this.jira.getIssue(issueKey)));
+    return issuesData
+  }
+
+  async publishCommentWithIssues(issueList, transitionIssues) {
+    if (this.publishComment && issueList.length > 0) {
+      const issueStatus = issueList[0].fields.status.name
+      const issueComment = issueList
+        .filter(issue => transitionIssues.issueKeys.includes(issue.key))
+        .map((issue) => {
+          const summary = issue.fields.summary;
+          const issueUrl = `${this.jira.getBaseUrl()}/browse/${issue.key})`;
+          return `- ${summary} ([${issue.key}](${issueUrl})`;
+        })
+        .join("\n");
+      const body = `These issues have been moved to *${issueStatus}*:\n` + issueComment;
+      await this.github.publishComment(body);
+    }
+  }
 }
 
 module.exports = App
