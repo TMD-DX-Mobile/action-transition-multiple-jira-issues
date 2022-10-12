@@ -1,9 +1,21 @@
-name: 'Jira find and transition issues'
-description: 'Find Jira issue keys from commit and transition them to status which you want'
+name: 'Jira find and transition multiple issues'
+description: 'Find Jira issue keys from commit and transition them to status which you want. Handle different issue type at same time.'
 branding:
   icon: 'box'
   color: 'orange'
 inputs:
+  jira-base-url:
+    description: URL of Jira instance
+    required: true
+  jira-api-token:
+    description: Access Token for Authorization
+    required: true
+  jira-user-email:
+    description: Email of the user for which Access Token was created for
+    required: true
+  github-token:
+    description: Your everyday GitHub token used for GitHub Actions
+    required: true
   issuetypes:
     description: The issue types to be transitioned It's relevant with 'transitions' order, e.g, 'Story,Bug,Task'
     required: true
@@ -11,5 +23,5 @@ inputs:
     description: The transitions to apply to the issue. It's relevant with 'issuetypes' order, e.g. 'To Do,In Progress,In Progress'
     required: true
 runs:
-  using: 'node12'
+  using: 'node16'
   main: './dist/index.js'

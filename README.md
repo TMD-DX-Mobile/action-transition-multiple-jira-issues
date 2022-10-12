@@ -1,4 +1,12 @@
-# Github Jira find and transition issues
+
+# Message from the author : 
+This action is fusioning these two actions : 
+- https://github.com/bloobirds-it/action-transition-multiple-jira-issues
+- https://github.com/chontawee/gj-find-transition-issues
+
+You can apply a transition on multiples issues, whatever there types.
+
+# action-transition-multiple-jira-issues
 
 Find issue keys from commit messages and transition them to status which you want
 
@@ -12,27 +20,24 @@ Find issue keys from commit messages and transition them to status which you wan
     JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
     JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
   with:
-    issuetypes: Story,Bug,Task
-    transitions: In Progress,In Progress,Ready for Test
+    jira-base-url: https://<yourdomain>.atlassian.net
+    jira-user-email: human@example.com
+    jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    issuetypes: Story,Bug
+    transitions: In Progress,In Progress
 ```
 
-## Variables
+## Inputs
 
-<b> Environment Variables </b>
-
-- JIRA_BASE_URL - URL of Jira instance. Example: https://<yourdomain>.atlassian.net
-- JIRA_API_TOKEN - Access Token for Authorization. Example: HXe8DGg1iJd2AopzyxkFB7F2
-- JIRA_USER_EMAIL - email of the user for which Access Token was created for. Example: human@example.com
-  <b> Arguments </b>
-- issuetypes - Type of issues on your workflow. They will map with `transitions` arguments. Example: Story,Bug
-- transitions - Transitions status which you want to move. They will depends on `issuetypes` argument. Example: In Progress,To Do
-  Note: Relationship between `issuetypes` and `transitions` argument be shown below
-  Example `issuetypes` is `Story,Bug` and `transtions` is `In Progress, To Do`
-
-| Issue Types | Transitions To |
-| ----------- | -------------- |
-| Story       | In Progress    |
-| Bug         | To Do          |
+| **Name**        | **Description**                                                           | **Required** |
+| --------------- | ------------------------------------------------------------------------- | ------------ |
+| jira-base-url   | URL of Jira instance                                                      | ✔            |
+| jira-api-token  | Access Token for Authorization                                            | ✔            |
+| jira-user-email | Email of the user for which Access Token was created for                  | ✔            |
+| github-token    | Your everyday GitHub token                                                | ✔            |
+| issuetypes      | Type of issues on your workflow. They will map with transitions arguments.  | ✔            |
+| transitions | Transitions status which you want to move. They will depends on issuetypes argument. Example: In Progress,To Do Note: Relationship between issuetypes and transitions argument be shown below Example issuetypes is **Story,Bug** and transtions is **In Progress, To Do**                              | ✔            |
 
 ## References
 
