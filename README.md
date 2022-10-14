@@ -14,11 +14,7 @@ Find issue keys from commit messages and transition them to status which you wan
 
 ```yaml
 - name: Jira find and transition issues
-  uses: yasmanygutierrez/gj-find-transition-issues@v0.1-beta
-  env:
-    JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-    JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-    JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+  uses: mop-Technical-User/action-transition-multiple-jira-issues@main
   with:
     jira-base-url: https://<yourdomain>.atlassian.net
     jira-user-email: human@example.com
