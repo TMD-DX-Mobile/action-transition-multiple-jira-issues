@@ -29,10 +29,14 @@ class App {
 
     const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g
     // Get issue keys and remove duplicate keys
-    const issueKeys = commitMessages.flatMap(message => message.match(issueIdRegEx) ? message.match(issueIdRegEx) : [])
-    if (!issueKeys) {
+    const issueKeys = commitMessages
+    .flatMap(message => message.match(issueIdRegEx) ? message.match(issueIdRegEx) : [])
+    .filter((key,index,array) => array.indexOf(key) === index)
+
+    if (issueKeys.length == 0) {
       throw new Error(`Commit messages doesn't contain any issue keys`)
     }
+
     console.log(`Found issue keys: ${issueKeys.join(' ')}`)
     return issueKeys
   }
