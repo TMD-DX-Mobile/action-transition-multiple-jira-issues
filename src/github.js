@@ -26,6 +26,20 @@ class Github {
     return data.map((x) => x.commit.message);
   }
 
+  async getPrTitleAndBranchName() {
+    const { data, status } = await this.octokit.pulls.get({
+      owner: github.context.issue.owner,
+      repo: github.context.issue.repo,
+      pull_number: github.context.issue.number,
+    });
+
+    if (status !== 200) {
+      throw new Error("Something went wrong fetching PR");
+    }
+
+    return [data.title, data.head.ref];
+  }
+
   async publishComment(body) {
     await this.octokit.issues.createComment({
       owner: github.context.issue.owner,

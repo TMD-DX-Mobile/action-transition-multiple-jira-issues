@@ -13,7 +13,8 @@ class App {
 
   async init() {
     const commitMessages = await this.github.getPullRequestCommitMessages();
-    const issueKeys = this.findIssueKeys(commitMessages)
+    const titleAndBranchName = await this.github.getPrTitleAndBranchName();
+    const issueKeys = this.findIssueKeys(commitMessages, titleAndBranchName)
     const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
     await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
 
@@ -21,15 +22,18 @@ class App {
     await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
   }
 
-  findIssueKeys(commitMessages) {
+  findIssueKeys(commitMessages, titleAndBranchName) {
     if (!commitMessages) {
       console.dir(commitMessages)
       throw new Error(`commitMessages is empty`)
     }
 
     const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g
+    const valuesWithTickets = commitMessages.concat(titleAndBranchName)
+    console.dir(valuesWithTickets)
+
     // Get issue keys and remove duplicate keys
-    const issueKeys = commitMessages
+    const issueKeys = valuesWithTickets
     .flatMap(message => message.match(issueIdRegEx) ? message.match(issueIdRegEx) : [])
     .filter((key,index,array) => array.indexOf(key) === index)
 
