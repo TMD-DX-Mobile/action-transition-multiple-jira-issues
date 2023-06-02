@@ -34,7 +34,7 @@ class App {
 
     // Get issue keys and remove duplicate keys
     const issueKeys = valuesWithTickets
-    .flatMap(message => message.match(issueIdRegEx) ? message.match(issueIdRegEx) : [])
+    .flatMap(message => message.match(issueIdRegEx) ? message.toUpperCase().match(issueIdRegEx) : [])
     .filter((key,index,array) => array.indexOf(key) === index)
 
     if (issueKeys.length == 0) {
