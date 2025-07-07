@@ -15,6 +15,12 @@ class App {
     const commitMessages = await this.github.getPullRequestCommitMessages();
     const titleAndBranchName = await this.github.getPrTitleAndBranchName();
     const issueKeys = this.findIssueKeys(commitMessages, titleAndBranchName)
+
+    if (issueKeys.length === 0) {
+      console.log("No issue keys found.")
+      return
+    }
+
     const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
     await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
 
@@ -24,8 +30,8 @@ class App {
 
   findIssueKeys(commitMessages, titleAndBranchName) {
     if (!commitMessages) {
-      console.dir(commitMessages)
-      throw new Error(`commitMessages is empty`)
+      console.log(`commitMessages is empty`)
+      return []
     }
 
     const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g
@@ -38,10 +44,11 @@ class App {
     .filter((key,index,array) => array.indexOf(key) === index)
 
     if (issueKeys.length == 0) {
-      throw new Error(`Commit messages doesn't contain any issue keys`)
+      console.log(`Commit messages doesn't contain any issue keys`)
+    } else {
+      console.log(`Found issue keys: ${issueKeys.join(' ')}`)
     }
 
-    console.log(`Found issue keys: ${issueKeys.join(' ')}`)
     return issueKeys
   }
 
