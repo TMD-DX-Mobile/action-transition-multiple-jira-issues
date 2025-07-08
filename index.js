@@ -17,5 +17,5 @@ try {
   const app = new App(issuetypes, transitions)
   app.init()
 } catch (error) {
-  core.setFailed(error.toString())
+  console.dir(error.toString())
 }

@@ -16,15 +16,16 @@ class App {
     const titleAndBranchName = await this.github.getPrTitleAndBranchName();
     const issueKeys = this.findIssueKeys(commitMessages, titleAndBranchName)
 
-    if (issueKeys.length == 0) {
+    if (issueKeys.length === 0) {
       console.log("No issue keys found.")
-    } else {
-      const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
-      await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
-  
-      const jiraIssueList = await this.getIssueListFromKeys(issueKeys);
-      await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
+      return
     }
+
+    const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
+    await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
+
+    const jiraIssueList = await this.getIssueListFromKeys(issueKeys);
+    await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
   }
 
   findIssueKeys(commitMessages, titleAndBranchName) {
