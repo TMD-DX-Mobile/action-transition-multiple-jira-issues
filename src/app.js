@@ -16,7 +16,7 @@ class App {
     const titleAndBranchName = await this.github.getPrTitleAndBranchName();
     const issueKeys = this.findIssueKeys(commitMessages, titleAndBranchName)
 
-    if (issueKeys.length === 0) {
+    if (issueKeys.length == 0) {
       console.log("No issue keys found.")
     } else {
       const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
