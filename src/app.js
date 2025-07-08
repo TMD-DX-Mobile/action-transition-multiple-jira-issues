@@ -18,14 +18,13 @@ class App {
 
     if (issueKeys.length === 0) {
       console.log("No issue keys found.")
-      return
+    } else {
+      const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
+      await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
+  
+      const jiraIssueList = await this.getIssueListFromKeys(issueKeys);
+      await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
     }
-
-    const transitionIssues = await this.getTransitionIdsAndKeys(issueKeys)
-    await this.transitionIssues(transitionIssues.issueKeys, transitionIssues.transitionIds)
-
-    const jiraIssueList = await this.getIssueListFromKeys(issueKeys);
-    await this.publishCommentWithIssues(jiraIssueList, transitionIssues);
   }
 
   findIssueKeys(commitMessages, titleAndBranchName) {
